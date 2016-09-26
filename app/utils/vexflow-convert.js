@@ -24,7 +24,7 @@ console.log("toVexChord keys: "+keyNames.join(', '));
 var vexKey = vexChord.getKeyProps();
 
 vexKey.forEach(function (item, index, array) {
-console.log("vexKeys: "+item.key+" "+item.accidental+" "+index+" "+item.clef);
+console.log("vexKeys: "+item.key+" "+item.accidental+" "+index);
 if (item.accidental) {
         vexChord.addAccidental(index, new Vex.Flow.Accidental(item.accidental));
       }

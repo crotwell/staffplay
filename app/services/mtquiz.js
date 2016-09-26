@@ -11,16 +11,20 @@ export default Ember.Service.extend({
     maxTreble: Teoria.note('g5'),
     minBass: Teoria.note('f2'),
     maxBass: Teoria.note('c4'),
+    currentQuiz: null,
 
   init() {
     this.set('quizType', 'triad');
-    if (!this.get('quizData')) {
-      this.set('quizData', this.createQuiz(this.get('quizType'), this.randomClef()));
-    }
   },
+  quiz: Ember.computed('quizType', 'currentQuiz', function() {
+    if ( ! this.get('currentQuiz')) {
+      this.next();
+    }
+    return this.get('currentQuiz');
+  }),
   next() {
-    this.set('quizData', this.createQuiz(this.get('quizType'), this.randomClef()));
-    return this.get('quizData');
+    this.set('currentQuiz', this.createQuiz(this.get('quizType'), this.randomClef()));
+    return this.get('currentQuiz');
   },
   createQuiz(inQuizType, instaff) {
     let qmaker = new QM();

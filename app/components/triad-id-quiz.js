@@ -12,9 +12,10 @@ export default Ember.Component.extend({
     this._super(...arguments);
     this.set('qmUtil', new QM());
     this.get('mtquiz').set('quizType', 'triad');
-    this.set('quiz', this.get('mtquiz').get('quizData'));
+    this.set('quiz', this.get('mtquiz').get('quiz'));
     this.set('answer','');
     this.set('right','');
+    this.set('correctAnswer', this.get('quiz').get('chordRoman'));
   },
 
 //  chord: Ember.Computed('quiz.chord', function() {
@@ -29,9 +30,9 @@ export default Ember.Component.extend({
   actions: {
     updateAnswer(key) {
 console.log("updateAnswer "+key);
-      if ( ! this.qmUtil.validChord(key)) {
-        this.set('answer', key.slice(0, -1)); 
-      }
+//      if ( ! this.qmUtil.validChord(key)) {
+//        this.set('answer', key.slice(0, -1)); 
+//      }
       if (this.get('clearOnNextKey')) {
 console.log('set right empty');
        // this.set('right', '');
@@ -39,13 +40,12 @@ console.log('set right empty');
       }
     },
     check() {
-      let correctAns = this.get('quiz').get('chordRoman');
-      if (this.get('answer') === correctAns) {
+      if (this.get('answer') === this.get('correctAnswer')) {
 console.log("YES!");
-        this.set('right', "yes");
+        this.set('right', "Yes");
       } else {
 console.log("no, sorry");
-        this.set('right', "no, "+correctAns);
+        this.set('right', "No, try again.");
         this.set('clearOnNextKey', true);
 console.log('set clearOnNextKey');
       }
