@@ -1,0 +1,38 @@
+
+<h3>Seven Chord Identification</h3>
+
+<div>
+<div id="vexflow-staff">
+{{vexflow-staff chord=quiz.chord clef=quiz.staff}}
+</div>
+
+<p>Ans: {{answer}} {{right}}</p>
+</div>
+
+<h4>Key of {{quiz.scaleString}}</h4>
+
+{{input value=answer key-up="updateAnswer" insert-newline="check" }}
+
+<button {{action "check" }}>Check</button>
+<button {{action "next" }}>Next</button>
+
+
+<h4>Answer/Debugging Section</h4>
+
+<ul>
+<li>quiz type {{quiz.quizType}} </li>
+<li>scale tonic {{quiz.scale.tonic}} </li>
+<li>scale type {{quiz.scale.name}} {{quiz.scaleSimple}}</li>
+<li>chord degree {{quiz.idx}}</li>
+<li>chord bass {{quiz.chordBass}}</li>
+<li>chord root {{quiz.chordRoot}}</li>
+<li>chord {{quiz.chord.name}} </li>
+<li>chord quality {{quiz.chordQuality}} </li>
+<li>chord voicing {{quiz.chordVoicing}} </li>
+<li>invsion: {{quiz.chord.inversion}}</li>
+<li>staff: {{quiz.staff}}</li>
+</ul>
+
+{{yield}}
+
+

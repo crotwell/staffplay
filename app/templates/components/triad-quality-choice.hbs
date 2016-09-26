@@ -1,0 +1,9 @@
+<h5>Choose Triad Quality</h5>
+
+{{#each qualsymbols as |sym|}}
+{{input type="checkbox" name=sym checked='isDiminished'}}{{sym}}
+{{/each}}
+
+Q: {{quality}}
+
+{{yield}}

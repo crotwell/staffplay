@@ -1,0 +1,197 @@
+import Ember from 'ember';
+import Vex from 'npm:vexflow';
+import Teoria from 'npm:teoria';
+import TeoriaChord from 'npm:teoria-chord-progression';
+
+const minorSecond = Teoria.interval('m2');
+const OCTAVE = Teoria.interval('P8');
+const DOWN_OCTAVE = Teoria.interval('P-8');
+
+
+export default Ember.Object.extend({
+
+    allNoteNames: ['a', 'b', 'c', 'd', 'e', 'f', 'g'],
+    allMajScaleNames: ['c#', 'f#', 'b', 'e', 'a', 'd', 'g', 'c', 'f', 'bb', 'eb', 'ab', 'db', 'gb', 'cb'],
+    minTreble: Teoria.note('a4'),
+    maxTreble: Teoria.note('g5'),
+    minBass: Teoria.note('c2'),
+    maxBass: Teoria.note('c4'),
+    diminishedSym: 'd',
+    halfDiminishedSym: 'h',
+    augmentedSym: '+',
+  init() {
+  },
+
+  randomNote(minNote, maxNote) {
+    let all = [];
+    let n = minNote;
+    while( n.key() <= maxNote.key()) {
+      all.push(n);
+      n = n.interval(minorSecond);
+      
+    }
+    let rand = Math.random();
+    return all[Math.floor(rand*all.length)];
+  },
+
+  randomScale(duration, clef) {
+    if (arguments.length < 1) {
+      duration = 1;
+    }
+    let rand = Math.random();
+    let idx = Math.floor(rand * this.get('allMajScaleNames').length);
+console.log("randomScale idx: "+idx+"  rand: "+rand+" allscale: "+this.get('allMajScaleNames').length);
+    let tonicOctave = '4';
+    if (clef === 'treble') {
+      tonicOctave = '4';
+    } else if (clef === 'bass') {
+      tonicOctave = '3';
+    } else {
+      throw "Unknown clef: "+clef;
+    }
+console.log("randomScale to note: "+this.get('allMajScaleNames')[idx]+tonicOctave);
+    let root = Teoria.note( this.get('allMajScaleNames')[idx]+tonicOctave, {value: duration});
+console.log("random scale, dur="+duration+"  root="+root+" root dur="+root.duration.value);
+    let scale = Teoria.scale(root, 'major');
+console.log("randomScale scale: tonic duration "+scale.tonic.duration.value);
+    return scale;
+  },
+
+  randomInversion(chord) {
+    let voicing = chord.voicing();
+    let invNum = Math.floor(Math.random() * chord.notes().length);
+    let newVoicing = [];
+    for (var i=0; i<voicing.length; i++) {
+      newVoicing[i] = voicing[i].toString();
+    }
+    for (var i=0; i<invNum; i++) {
+      newVoicing[i] = voicing[i].add(OCTAVE).toString();
+    }
+console.log('voicing: '+voicing+"  new: "+newVoicing);
+    
+    chord.voicing(newVoicing);
+console.log('voiced chord: '+chord);
+console.log('bass octave: '+chord.bass().octave());
+    if (chord.bass.octave > 4) {
+      chord = chord.interval(DOWN_OCTAVE);
+    }
+console.log('bass octave: '+chord.bass().octave()+"  voic:"+chord.voicing());
+    chord.inversion = invNum;
+    return chord;
+  },
+
+  rootBetween(chord, minNote, maxNote) {
+// temp disable
+//return chord;
+
+console.log("rootBetween before: "+chord.bass()+" "+chord.bass().midi()+" "+minNote.midi()+" "+maxNote.midi());
+console.log('bass octave: '+chord.bass().octave()+"  voic:"+chord.voicing());
+    let inversion = chord.inversion;
+    while(chord.bass().midi() < minNote.midi()) {
+      let voicing = chord.voicing();
+      let newVoicing = [];
+      for (var i=0; i<voicing.length; i++) {
+        newVoicing[i] = voicing[i].add(OCTAVE).toString();
+      }
+      chord.voicing(newVoicing);
+ //     chord = chord.interval(OCTAVE);
+    }
+    while(chord.bass().midi() > maxNote.midi()) {
+      let voicing = chord.voicing();
+      let newVoicing = [];
+      for (var i=0; i<voicing.length; i++) {
+        newVoicing[i] = voicing[i].add(DOWN_OCTAVE).toString();
+      }
+      chord.voicing(newVoicing);
+    //  chord = chord.interval(DOWN_OCTAVE);
+    }
+    chord.inversion = inversion;
+console.log("rootBetween after: "+chord.bass()+" "+chord.bass().midi()+" "+minNote.midi()+" "+maxNote.midi());
+console.log('bass octave: '+chord.bass().octave()+"  voic:"+chord.voicing());
+console.log("voicing: "+chord.voicing());
+    return chord;
+  },
+
+  downOctave(chord) {
+    let voicing = chord.voicing();
+    let newVoicing = [];
+    for (var i=0; i<voicing.length; i++) {
+      newVoicing[i] = voicing[i].add(DOWN_OCTAVE).toString();
+    }
+console.log('DownO voicing: '+voicing+"  new: "+newVoicing);
+
+    chord.voicing(newVoicing);
+console.log('DownO voiced chord: '+chord);
+    return chord;
+  },
+
+  createRoman(scale, idx, chord) {
+    let out = this.arabicToRoman(idx);
+    if (chord.quality() === 'diminished') {
+       out += this.diminishedSym;
+    } else if (chord.quality() === 'half-diminished') {
+       out += this.halfDiminishedSym;
+    } else if (chord.quality() === 'minor') {
+       out = out.toLowerCase();
+    } else if (chord.quality() === 'dominant') {
+       out = out.toUpperCase();
+    } else if (chord.quality() === 'major') {
+       out = out.toUpperCase();
+    } else if (chord.quality() === 'augmented') {
+       out += this.augmentedSym;
+    }
+    if (chord.notes().length == 3) {
+      //triad
+      if (chord.inversion == 0) {
+        // no symbol
+      } else if (chord.inversion == 1) {
+        out += '6';
+      } else if (chord.inversion == 2) {
+        out += '64';
+      } else {
+        throw "inversion for triad should be 0,1,2 but was :"+inversion;
+      }
+    } else if (chord.notes().length == 4) {
+      // 7 chord
+      if (chord.inversion == 0) {
+        out += '7';
+      } else if (chord.inversion == 1) {
+        out += '65';
+      } else if (chord.inversion == 2) {
+        out += '43';
+      } else if (chord.inversion == 3) {
+        out += '42';
+      } else {
+        throw "inversion for seven chord should be 0,1,2,3 but was :"+inversion;
+      }
+    }
+    return out;
+  },
+  validChord(sym) {
+    let re = /^[iIvV]+[dh]?[765432]{0,2}$/
+    return sym.match(re);
+  },
+
+  arabicToRoman(i) {
+    switch(i) {
+      case 1:
+        return 'i';
+      case 2:
+        return 'ii';
+      case 3:
+        return 'iii';
+      case 4:
+        return 'iv';
+      case 5:
+        return 'v';
+      case 6:
+        return 'vi';
+      case 7:
+        return 'vii';
+      default:
+        throw "arabicToRoman must be 1-7";
+    }
+  }
+
+
+});
