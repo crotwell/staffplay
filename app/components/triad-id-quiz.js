@@ -9,7 +9,7 @@ export default Ember.Component.extend({
     this._super(...arguments);
     this.set('qmUtil', new QM());
     this.get('mtquiz').set('quizType', 'triad');
-    this.set('quiz', this.get('mtquiz').get('quiz'));
+//    this.set('quiz', this.get('mtquiz').get('quiz'));
     this.set('answer','');
     this.set('right','');
     this.set('correctAnswer', this.get('quiz').get('chordRoman'));

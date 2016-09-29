@@ -17,7 +17,7 @@ export default Ember.Service.extend({
     this.set('quizType', 'triad');
   },
   quiz: Ember.computed('quizType', 'currentQuiz', function() {
-    if ( ! this.get('currentQuiz')) {
+    if ( ! this.get('currentQuiz') || this.get('currentQuiz').get('quizType') !== this.get('quizType')) {
       this.next();
     }
     return this.get('currentQuiz');
