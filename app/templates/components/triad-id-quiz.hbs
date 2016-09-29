@@ -11,11 +11,26 @@
 
 <h4>Key of {{quiz.scaleString}}</h4>
 
-{{input value=answer key-up="updateAnswer" insert-newline="check" }}
+{{input value=answer insert-newline="check" }}
 
 <button {{action "check" }}>Check</button>
 <button {{action "next" }}>Next</button>
 
+<!--
+<h4>Recent Incorrect</h4>
+<ul>
+{{#each recentWrong as |rcquiz|}}
+<li>{{rcquiz.scaleString}} {{rcquiz.chordRoman}} </li>
+{{/each}}
+</ul>
+
+<h4>Recent Correct</h4>
+<ul>
+{{#each recentCorrect as |rcquiz|}}
+<li>{{rcquiz.scaleString}} {{rcquiz.chordRoman}} </li>
+{{/each}}
+</ul>
+-->
 
 <h4>Answer/Debugging Section</h4>
 

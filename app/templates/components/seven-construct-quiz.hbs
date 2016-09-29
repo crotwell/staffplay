@@ -1,17 +1,10 @@
+<h3>Seven Chord Construction</h3>
 
-<h3>Seven Chord Identification</h3>
+{{vexflow-staff bassNotes=bassNotes trebNotes=trebleNotes noteClicked=(action "noteClicked")}}
 
-<div>
-<div id="vexflow-staff">
-{{vexflow-staff chord=quiz.chord clef=quiz.staff}}
-</div>
+<h4>Construct {{correctAnswer}} in the key of {{quiz.scaleString}} on the {{quiz.staff}} staff.</h4>
 
-<p>Ans: {{answer}} {{right}}</p>
-</div>
-
-<h4>Key of {{quiz.scaleString}}</h4>
-
-{{input value=answer insert-newline="check" }}
+<p>Right? {{right}}</p>
 
 <button {{action "check" }}>Check</button>
 <button {{action "next" }}>Next</button>
@@ -20,14 +13,14 @@
 <h4>Recent Incorrect {{recentWrong.length}}</h4>
 <ul>
 {{#each recentWrong as |rcquiz|}}
-<li>{{rcquiz.scaleString}} {{rcquiz.chordRoman}} </li> 
+<li>{{rcquiz.scaleString}} {{rcquiz.chordRoman}} </li>
 {{/each}}
 </ul>
 
 <h4>Recent Correct {{recentCorrect.length}}</h4>
 <ul>
 {{#each recentCorrect as |rcquiz|}}
-<li>{{rcquiz.scaleString}} {{rcquiz.chordRoman}} </li> 
+<li>{{rcquiz.scaleString}} {{rcquiz.chordRoman}} </li>
 {{/each}}
 </ul>
 -->
@@ -51,8 +44,9 @@
 <li>invsion: {{quiz.chord.inversion}}</li>
 <li>staff: {{quiz.staff}}</li>
 <li>answer: {{correctAnswer}}</li>
+<li>user treble: {{#each trebleNotes as |n|}} {{n}} {{/each}}</li>
+<li>user bass: {{#each bassNotes as |n|}} {{n}} {{/each}}</li>
+<li>reason: {{quiz.wrongReason}}</li>
 </ul>
 
 {{yield}}
-
-

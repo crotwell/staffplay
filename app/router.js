@@ -9,6 +9,7 @@ const Router = Ember.Router.extend({
 Router.map(function() {
   this.route('idtriad');
   this.route('idseven');
+  this.route('constructseven');
 });
 
 export default Router;

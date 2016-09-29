@@ -1,54 +1,63 @@
 import Ember from 'ember';
-import Vex from 'npm:vexflow';
 import Teoria from 'npm:teoria';
+import Vex from 'npm:vexflow';
 import VFConvert from '../utils/vexflow-convert';
-import QM from '../utils/quiz-maker';
 
 export default Ember.Component.extend({
-
+  init() {
+    this._super(...arguments);
+  },
+  staveWidth: 400,
   didInsertElement() {
     this._super(...arguments);
-console.log("didInsertElement");
     this.redisplay();
   },
   didUpdate() {
     this._super(...arguments);
-console.log("didUpdate");
     this.redisplay();
   },
-  didReceiveAttrs() {
+  willDestroyElement() {
     this._super(...arguments);
-console.log("didReceiveAttrs");
-    //this.redisplay();
+    let div = this.$()[0];
+    let svgSubElements = div.getElementsByTagName("svg");
+    if (svgSubElements.item(0)) {
+       svgSubElements.item(0).parentNode.removeChild(svgSubElements.item(0));
+    }
   },
+  notesChanged: Ember.observer('trebNotes.[]', 'bassNotes.[]', function() {
+    console.log("observer fire");
+
+    this.redisplay();
+  }),
 
   redisplay() {
-    var VF = Vex.Flow;
     console.log("In vexflow-staff redisplay "+this.get('chord')+" in the "+this.get('scale')+" scale");
-    var div = this.$()[0];
-    var svgSubElements = div.getElementsByTagName("svg");
+    let div = this.$()[0];
+    let svgSubElements = div.getElementsByTagName("svg");
     if (svgSubElements.item(0)) {
        svgSubElements.item(0).parentNode.removeChild(svgSubElements.item(0));
     }
     
-    var renderer = new VF.Renderer(div, VF.Renderer.Backends.SVG);
+    this.vexRenderer = new Vex.Flow.Renderer(div, Vex.Flow.Renderer.Backends.SVG);
 
     // Configure the rendering context.
-    renderer.resize(500, 250);
-    var context = renderer.getContext();
+    this.vexRenderer.resize(500, 250);
+    let context = this.vexRenderer.getContext();
     context.setFont("Arial", 10, "").setBackgroundFillStyle("#eed");
 
-    // Create a stave of width 400 at position 10, 40 on the canvas.
-    var trebleStave = new VF.Stave(20, 40, 400);
-    var bassStave = new VF.Stave(20, 120, 400);
+    // Create a stave of width this.staveWidth at position 10, 40 on the canvas.
+    let trebleStave = new Vex.Flow.Stave(20, 40, this.staveWidth);
+    let bassStave = new Vex.Flow.Stave(20, 140, this.staveWidth);
+    this.trebleStave = trebleStave;
+    this.bassStave = bassStave;
     
     // Add a clef and time signature.
     trebleStave.addClef("treble").addTimeSignature("4/4");
     bassStave.addClef("bass").addTimeSignature("4/4");
     
-    var brace = new Vex.Flow.StaveConnector(trebleStave, bassStave).setType(3);
-    var lineLeft = new Vex.Flow.StaveConnector(trebleStave, bassStave).setType(1);
-    var lineRight = new Vex.Flow.StaveConnector(trebleStave, bassStave).setType(6);
+    let brace = new Vex.Flow.StaveConnector(trebleStave, bassStave).setType(3);
+    let lineLeft = new Vex.Flow.StaveConnector(trebleStave, bassStave).setType(1);
+    let lineRight = new Vex.Flow.StaveConnector(trebleStave, bassStave).setType(6);
 
     // Connect it to the rendering context and draw!
     trebleStave.setContext(context).draw();
@@ -58,36 +67,110 @@ console.log("didReceiveAttrs");
     lineRight.setContext(context).draw();
 
     let forceDuration = 'w';
-    var vfConvert = VFConvert.create();
-    var tchord = null;
-    var notes = [];
+    let tchord = null;
     if (this.get('chord')) {
       tchord = this.get('chord');
-      notes = [vfConvert.toVexChord(tchord, forceDuration, tchord.clef)];
+      this.addChordToStaff(tchord, tchord.clef, forceDuration);
     } else {
-console.log('fix: no chord?');
+      if (this.get('trebNotes')) {
+        this.addNotesToStaff(this.get('trebNotes'), 'treble', forceDuration, true);
+      }
+      if (this.get('bassNotes')) {
+        this.addNotesToStaff(this.get('bassNotes'), 'bass', forceDuration, true);
+      }
     }
+    this.addNoteClickListener();
+  },
 
-    // Create a voice in 4/4 and add above notes
-    var voice = new VF.Voice({num_beats: 4,  beat_value: 4});
+  addChordToStaff(tchord, staff, forceDuration) {
+    let vfConvert = VFConvert.create();
+    let notes = [vfConvert.toVexChord(tchord, forceDuration, staff)];
+    this.addVexNotesToStaff(notes, staff);
+  },
+  
+  addNotesToStaff(tNotes, staff, forceDuration, asChord) {
+    if (tNotes.length > 0) {
+      let vfConvert = VFConvert.create();
+      let notes = [];
+      if (asChord) {
+        notes.push(vfConvert.toVexChordFromNotes(tNotes, forceDuration, staff));
+      } else {
+        tNotes.forEach(function(item ) {
+          notes.push(vfConvert.toVexNote(item, forceDuration, staff));
+        });
+      }
+      this.addVexNotesToStaff(notes, staff);
+    }
+  },
+
+  addVexNotesToStaff(notes, staff) {
+    let voice = new Vex.Flow.Voice({num_beats: 4,  beat_value: 4});
     voice.addTickables(notes);
 
     // Format and justify the notes to 400 pixels.
-    var formatter = new VF.Formatter().joinVoices([voice]).format([voice], 400);
+    let formatter = new Vex.Flow.Formatter();
+    formatter.joinVoices([voice]).format([voice], 400);
+    let context = this.vexRenderer.getContext();
 
     // Render voice
-    if (this.get('clef') === 'bass') {
-console.log("render to "+this.get('clef'));
-      voice.draw(context, bassStave);
+    if (staff === 'bass') {
+      voice.draw(context, this.bassStave);
     } else {
-console.log("render to "+this.get('clef'));
-      voice.draw(context, trebleStave);
+      voice.draw(context, this.trebleStave);
     }
+  },
+
+  addNoteClickListener() {
+    let div = this.$()[0];
+    let svg = div.getElementsByTagName("svg").item(0);
+    let that = this;
+    let pt = svg.createSVGPoint();
+    svg.addEventListener('mouseup',function(evt){
+      let loc = that.cursorPoint(evt, pt, svg);
+      // Use loc.x and loc.y here
+      let lineForY = that.trebleStave.getLineForY(loc.y);
+      let trebleNote = Teoria.note(that.lineToNote('treble', lineForY));
+      lineForY = that.bassStave.getLineForY(loc.y);
+      let bassNote = Teoria.note(that.lineToNote('bass', lineForY));
+      if (that.get('noteClicked')) {
+        if (trebleNote.octave() > 3 || (trebleNote.octave() === 3 && (trebleNote.name() === 'g' || trebleNote.name() === 'a' || trebleNote.name() === 'b'))) {
+          that.get('noteClicked')(trebleNote, "treble");
+        } else {
+          that.get('noteClicked')(bassNote, 'bass');
+        }
+      }
+    },false);
+  },
+  lineToNote(stave, lineNum) {
+    if (stave === 'treble') {
+      // middle C is C4, so top of treble clef is F5=7*5+5
+      let rndLine = 5*7+5 - Math.round( 2 * lineNum);
+      let lineSpace = ( rndLine) % 7;
+      // octave number changes from B to C, not from G to A (thanks Lottie)
+      let octave =  Math.floor((rndLine -2 ) / 7);
+      return this.lineNoteArray[lineSpace]+octave;
+    } else if (stave === 'bass') {
+      // middle C is C4, so top of bass clef is A3=7*3+5
+      let rndLine = 4*7 - Math.round( 2 * lineNum);
+      let lineSpace = ( rndLine) % 7;
+      // octave number changes from B to C, not from G to A (thanks Lottie)
+      let octave =  Math.floor((rndLine -2 ) / 7);
+      return this.lineNoteArray[lineSpace]+octave;
+    } else {
+      return "unknown";
+    }
+  },
+  lineNoteArray: [ 'A','B','C','D','E','F','G'],
+
+  // Get point in global SVG space
+  cursorPoint(evt, pt, svg) {
+    // Create an SVGPoint for future math
+    pt.x = evt.clientX; pt.y = evt.clientY;
+    return pt.matrixTransform(svg.getScreenCTM().inverse());
   },
 
   minBassClef: 'c1',
   maxBassClef: 'a3',
   minTrebleClef: 'a3',
   maxTrebleClef: 'g5',
-  bassNotes: []
 });

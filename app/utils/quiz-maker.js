@@ -1,7 +1,5 @@
 import Ember from 'ember';
-import Vex from 'npm:vexflow';
 import Teoria from 'npm:teoria';
-import TeoriaChord from 'npm:teoria-chord-progression';
 
 const minorSecond = Teoria.interval('m2');
 const OCTAVE = Teoria.interval('P8');
@@ -40,7 +38,6 @@ export default Ember.Object.extend({
     }
     let rand = Math.random();
     let idx = Math.floor(rand * this.get('allMajScaleNames').length);
-console.log("randomScale idx: "+idx+"  rand: "+rand+" allscale: "+this.get('allMajScaleNames').length);
     let tonicOctave = '4';
     if (clef === 'treble') {
       tonicOctave = '4';
@@ -49,11 +46,8 @@ console.log("randomScale idx: "+idx+"  rand: "+rand+" allscale: "+this.get('allM
     } else {
       throw "Unknown clef: "+clef;
     }
-console.log("randomScale to note: "+this.get('allMajScaleNames')[idx]+tonicOctave);
     let root = Teoria.note( this.get('allMajScaleNames')[idx]+tonicOctave, {value: duration});
-console.log("random scale, dur="+duration+"  root="+root+" root dur="+root.duration.value);
     let scale = Teoria.scale(root, 'major');
-console.log("randomScale scale: tonic duration "+scale.tonic.duration.value);
     return scale;
   },
 
@@ -61,54 +55,56 @@ console.log("randomScale scale: tonic duration "+scale.tonic.duration.value);
     let voicing = chord.voicing();
     let invNum = Math.floor(Math.random() * chord.notes().length);
     let newVoicing = [];
-    for (var i=0; i<voicing.length; i++) {
+    for (let i=0; i<voicing.length; i++) {
       newVoicing[i] = voicing[i].toString();
     }
-    for (var i=0; i<invNum; i++) {
-      newVoicing[i] = voicing[i].add(OCTAVE).toString();
+    for (let j=0; j<invNum; j++) {
+      newVoicing[j] = voicing[j].add(OCTAVE).toString();
     }
-console.log('voicing: '+voicing+"  new: "+newVoicing);
     
     chord.voicing(newVoicing);
-console.log('voiced chord: '+chord);
-console.log('bass octave: '+chord.bass().octave());
-    if (chord.bass.octave > 4) {
+    let bassNote = chord.notes()[0];
+    chord.notes().forEach(function(n) {
+      if (n.midi() < bassNote.midi()) {
+        bassNote = n;
+      }
+    });
+    chord.myBassNote = bassNote;
+    
+    if (chord.myBassNote.octave > 4) {
       chord = chord.interval(DOWN_OCTAVE);
+      chord.myBassNote = bassNote.interval(DOWN_OCTAVE);
     }
-console.log('bass octave: '+chord.bass().octave()+"  voic:"+chord.voicing());
     chord.inversion = invNum;
     return chord;
   },
 
-  rootBetween(chord, minNote, maxNote) {
+  bassBetween(chord, minNote, maxNote) {
 // temp disable
 //return chord;
 
-console.log("rootBetween before: "+chord.bass()+" "+chord.bass().midi()+" "+minNote.midi()+" "+maxNote.midi());
-console.log('bass octave: '+chord.bass().octave()+"  voic:"+chord.voicing());
     let inversion = chord.inversion;
-    while(chord.bass().midi() < minNote.midi()) {
+    while(chord.myBassNote.midi() < minNote.midi()) {
       let voicing = chord.voicing();
       let newVoicing = [];
       for (var i=0; i<voicing.length; i++) {
         newVoicing[i] = voicing[i].add(OCTAVE).toString();
       }
       chord.voicing(newVoicing);
+      chord.myBassNote = chord.myBassNote.interval(OCTAVE);
  //     chord = chord.interval(OCTAVE);
     }
-    while(chord.bass().midi() > maxNote.midi()) {
+    while(chord.myBassNote.midi() > maxNote.midi()) {
       let voicing = chord.voicing();
       let newVoicing = [];
-      for (var i=0; i<voicing.length; i++) {
-        newVoicing[i] = voicing[i].add(DOWN_OCTAVE).toString();
+      for (let j=0; j<voicing.length; j++) {
+        newVoicing[j] = voicing[j].add(DOWN_OCTAVE).toString();
       }
       chord.voicing(newVoicing);
+      chord.myBassNote = chord.myBassNote.interval(DOWN_OCTAVE);
     //  chord = chord.interval(DOWN_OCTAVE);
     }
     chord.inversion = inversion;
-console.log("rootBetween after: "+chord.bass()+" "+chord.bass().midi()+" "+minNote.midi()+" "+maxNote.midi());
-console.log('bass octave: '+chord.bass().octave()+"  voic:"+chord.voicing());
-console.log("voicing: "+chord.voicing());
     return chord;
   },
 
@@ -118,10 +114,8 @@ console.log("voicing: "+chord.voicing());
     for (var i=0; i<voicing.length; i++) {
       newVoicing[i] = voicing[i].add(DOWN_OCTAVE).toString();
     }
-console.log('DownO voicing: '+voicing+"  new: "+newVoicing);
 
     chord.voicing(newVoicing);
-console.log('DownO voiced chord: '+chord);
     return chord;
   },
 
@@ -140,35 +134,35 @@ console.log('DownO voiced chord: '+chord);
     } else if (chord.quality() === 'augmented') {
        out += this.augmentedSym;
     }
-    if (chord.notes().length == 3) {
+    if (chord.notes().length === 3) {
       //triad
-      if (chord.inversion == 0) {
+      if (chord.inversion === 0) {
         // no symbol
-      } else if (chord.inversion == 1) {
+      } else if (chord.inversion === 1) {
         out += '6';
-      } else if (chord.inversion == 2) {
+      } else if (chord.inversion === 2) {
         out += '64';
       } else {
-        throw "inversion for triad should be 0,1,2 but was :"+inversion;
+        throw "inversion for triad should be 0,1,2 but was :"+chord.inversion;
       }
-    } else if (chord.notes().length == 4) {
+    } else if (chord.notes().length === 4) {
       // 7 chord
-      if (chord.inversion == 0) {
+      if (chord.inversion === 0) {
         out += '7';
-      } else if (chord.inversion == 1) {
+      } else if (chord.inversion === 1) {
         out += '65';
-      } else if (chord.inversion == 2) {
+      } else if (chord.inversion === 2) {
         out += '43';
-      } else if (chord.inversion == 3) {
+      } else if (chord.inversion === 3) {
         out += '42';
       } else {
-        throw "inversion for seven chord should be 0,1,2,3 but was :"+inversion;
+        throw "inversion for seven chord should be 0,1,2,3 but was :"+chord.inversion;
       }
     }
     return out;
   },
   validChord(sym) {
-    let re = /^[iIvV]+[dh]?[765432]{0,2}$/
+    let re = /^[iIvV]+[dh]?[765432]{0,2}$/;
     return sym.match(re);
   },
 
