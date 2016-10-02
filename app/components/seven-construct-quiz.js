@@ -77,6 +77,7 @@ export default Ember.Component.extend({
         this.set('recentWrong', this.get('mtquiz').get('recentWrong'));
         this.set('right', "Hum, maybe you should check that and try again.");
       } else {
+        this.get('quiz').set('wrongReason', '');
         this.get('mtquiz').addToRecentCorrect(this.get('quiz'));
         this.set('recentCorrect', this.get('mtquiz').get('recentCorrect'));
         this.set('right', "Yes!");
