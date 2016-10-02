@@ -10,6 +10,7 @@ export default Ember.Object.extend({
 
     allNoteNames: ['a', 'b', 'c', 'd', 'e', 'f', 'g'],
     allMajScaleNames: ['c#', 'f#', 'b', 'e', 'a', 'd', 'g', 'c', 'f', 'bb', 'eb', 'ab', 'db', 'gb', 'cb'],
+    allMinorScaleNames: [ 'a#', 'd#', 'g#', 'c#', 'f#', 'b', 'e', 'a', 'd', 'g', 'c', 'f', 'bb', 'eb', 'ab'],
     minTreble: Teoria.note('a4'),
     maxTreble: Teoria.note('g5'),
     minBass: Teoria.note('c2'),
@@ -36,6 +37,12 @@ export default Ember.Object.extend({
     if (arguments.length < 1) {
       duration = 1;
     }
+    let quality;
+    if (Math.random() < 0.5) {
+      quality = 'minor';
+    } else {
+      quality = 'major';
+    }
     let rand = Math.random();
     let idx = Math.floor(rand * this.get('allMajScaleNames').length);
     let tonicOctave = '4';
@@ -46,8 +53,13 @@ export default Ember.Object.extend({
     } else {
       throw "Unknown clef: "+clef;
     }
-    let root = Teoria.note( this.get('allMajScaleNames')[idx]+tonicOctave, {value: duration});
-    let scale = Teoria.scale(root, 'major');
+    let root = null;
+    if (quality === 'major') {
+      root = Teoria.note( this.get('allMajScaleNames')[idx]+tonicOctave, {value: duration});
+    } else {
+      root = Teoria.note( this.get('allMinorScaleNames')[idx]+tonicOctave, {value: duration});
+    }
+    let scale = Teoria.scale(root, quality);
     return scale;
   },
 

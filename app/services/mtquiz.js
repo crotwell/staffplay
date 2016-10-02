@@ -62,7 +62,11 @@ console.log("chord idx="+idx);
       throw "Unknown Quiz type: "+inQuizType;
     }
     // construct a diatonic chord progression
-    let chord = qmaker.randomInversion(new TeoriaChord(sc, chords, chordType).getChord(0));
+    let scaleForChord = sc;
+    if (sc.name === 'minor' && (idx === 5 || idx === 7)) {
+      scaleForChord = Teoria.scale(sc.tonic, 'harmonicminor');
+    }
+    let chord = qmaker.randomInversion(new TeoriaChord(scaleForChord, chords, chordType).getChord(0));
     if (instaff === 'treble') {
       chord = qmaker.bassBetween(chord, this.minTreble, this.maxTreble);
     } else if (instaff === 'bass') {
