@@ -16,14 +16,14 @@
 <button {{action "check" }}>Check</button>
 <button {{action "next" }}>Next</button>
 
-<!--
 <h4>Recent Incorrect</h4>
 <ul>
 {{#each recentWrong as |rcquiz|}}
-<li>{{rcquiz.scaleString}} {{rcquiz.chordRoman}} </li>
+<li>{{rcquiz.chordRomanHtml}} in {{rcquiz.scaleString}}, {{rcquiz.wrongReason}} </li>
 {{/each}}
 </ul>
 
+<!--
 <h4>Recent Correct</h4>
 <ul>
 {{#each recentCorrect as |rcquiz|}}
