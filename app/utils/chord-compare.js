@@ -17,7 +17,7 @@ export default Ember.Object.extend({
     if ( chordNotes.length === userNotes.length) {
       return true;
     } else {
-      this.set('reason', 'different num notes '+chordNotes.length +'!=='+ userNotes.length);
+      this.set('reason', 'Wrong number of notes, need '+chordNotes.length +' but had '+ userNotes.length);
       return false;
     }
   },
@@ -29,12 +29,17 @@ export default Ember.Object.extend({
     chordNotes.forEach(function(item) {
       let foundNote = false;
       userNotes.forEach(function(userItem) {
-        if (item.name() === userItem.name() && item.accidental() === userItem.accidental()) {
-          foundNote = true;
+        if (item.name() === userItem.name()) {
+          if (item.accidental() === userItem.accidental()) {
+            foundNote = true;
+          } else {
+            foundNote = false;
+            that.set('reason', 'Wrong accidental on note, need '+item.name()+item.accidental());
+          }
         }
       });
-      if ( ! foundNote) {
-        that.set('reason', 'dont see note '+item);
+      if ( ! foundNote && ! that.get('reason')) {
+        that.set('reason', 'Missing note, need '+item.name+item.accidental);
       }
       allOK = allOK && foundNote;
     });
@@ -50,7 +55,7 @@ export default Ember.Object.extend({
       }
     });
     if (userBassNote.name() !== chordBassNote.name()) {
-      this.set('reason', 'bass note diff '+chordBassNote+" "+userBassNote);
+      this.set('reason', 'Wrong bass note, should be '+chordBassNote+", but was "+userBassNote);
       return false;
     } else {
       return true;

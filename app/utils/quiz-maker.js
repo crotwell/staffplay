@@ -132,45 +132,59 @@ export default Ember.Object.extend({
   },
 
   createRoman(scale, idx, chord) {
-    let out = this.arabicToRoman(idx);
+    let out = { asText: this.arabicToRoman(idx) };
+    out.asHtml = out.asText;
     if (chord.quality() === 'diminished') {
-       out += this.diminishedSym;
+       out.asText += this.diminishedSym;
+       out.asHtml += '<span class="music-symbol" style="font-family: Arial Unicode MS, Lucida Sans Unicode;"><sup>o</sup></span>';
     } else if (chord.quality() === 'half-diminished') {
-       out += this.halfDiminishedSym;
+       out.asText += this.halfDiminishedSym;
+       out.asHtml += '<span class="music-symbol" style="font-family: Arial Unicode MS, Lucida Sans Unicode;"><sup>ø</sup></span>';
     } else if (chord.quality() === 'minor') {
-       out = out.toLowerCase();
+       out.asText = out.asText.toLowerCase();
+       out.asHtml = out.asText;
     } else if (chord.quality() === 'dominant') {
-       out = out.toUpperCase();
+       out.asText = out.asText.toUpperCase();
+       out.asHtml = out.asText;
     } else if (chord.quality() === 'major') {
-       out = out.toUpperCase();
+       out.asText = out.asText.toUpperCase();
+       out.asHtml = out.asText;
     } else if (chord.quality() === 'augmented') {
-       out += this.augmentedSym;
+       out.asText += this.augmentedSym;
+       out.asHtml = out.asText;
     }
     if (chord.notes().length === 3) {
       //triad
       if (chord.inversion === 0) {
         // no symbol
       } else if (chord.inversion === 1) {
-        out += '6';
+        out.asText += '6';
+        out.asHtml += '<span style="display:inline-block;margin-bottom:-0.3em;vertical-align:-0.4em;line-height:1.2em;font-size:80%;text-align:left">6<br /> </span>';
       } else if (chord.inversion === 2) {
-        out += '64';
+        out.asText += '64';
+        out.asHtml += '<span style="display:inline-block;margin-bottom:-0.3em;vertical-align:-0.4em;line-height:1.2em;font-size:80%;text-align:left">6<br />4</span>';
       } else {
         throw "inversion for triad should be 0,1,2 but was :"+chord.inversion;
       }
     } else if (chord.notes().length === 4) {
       // 7 chord
       if (chord.inversion === 0) {
-        out += '7';
+        out.asText += '7';
+        out.asHtml += '<span style="display:inline-block;margin-bottom:-0.3em;vertical-align:0.4em;line-height:1.2em;font-size:80%;text-align:left">7 </span>';
       } else if (chord.inversion === 1) {
-        out += '65';
+        out.asText += '65';
+        out.asHtml += '<span style="display:inline-block;margin-bottom:-0.3em;vertical-align:-0.4em;line-height:1.2em;font-size:80%;text-align:left">6<br />5</span>';
       } else if (chord.inversion === 2) {
-        out += '43';
+        out.asText += '43';
+        out.asHtml += '<span style="display:inline-block;margin-bottom:-0.3em;vertical-align:-0.4em;line-height:1.2em;font-size:80%;text-align:left">4<br />3</span>';
       } else if (chord.inversion === 3) {
-        out += '42';
+        out.asText += '42';
+        out.asHtml += '<span style="display:inline-block;margin-bottom:-0.3em;vertical-align:-0.4em;line-height:1.2em;font-size:80%;text-align:left">4<br />2</span>';
       } else {
         throw "inversion for seven chord should be 0,1,2,3 but was :"+chord.inversion;
       }
     }
+    out.asHtml = Ember.String.htmlSafe(out.asHtml);
     return out;
   },
   validChord(sym) {

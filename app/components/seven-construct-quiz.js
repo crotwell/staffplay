@@ -14,6 +14,7 @@ export default Ember.Component.extend({
     this.set('answer','');
     this.set('right','');
     this.set('correctAnswer', this.get('quiz').get('chordRoman'));
+    this.set('correctAnswerHtml', this.get('quiz').get('chordRomanHtml'));
     this.set('trebleNotes', []);
     this.set('bassNotes', []);
   },
@@ -91,6 +92,11 @@ export default Ember.Component.extend({
       this.set('clearOnNextKey', false);
       this.set('quiz', this.get('mtquiz').next());
       this.set('correctAnswer', this.get('quiz').get('chordRoman'));
+      this.set('correctAnswerHtml', this.get('quiz').get('chordRomanHtml'));
+    },
+    clearAll() {
+      this.set('trebleNotes', []);
+      this.set('bassNotes', []);
     }
   },
   containedNote(notes, n) {

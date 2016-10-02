@@ -1,26 +1,29 @@
 <h3>Seven Chord Construction</h3>
 
+<div>
 {{vexflow-staff class="notepick" bassNotes=bassNotes trebNotes=trebleNotes noteClicked=(action "noteClicked")}}
+<button {{action "clearAll" }}>Clear All</button>
+</div>
 
-<h4>Construct {{correctAnswer}} in the key of {{quiz.scaleString}} on the {{quiz.staff}} staff.</h4>
+<h4>Construct {{quiz.chordRomanHtml}} in the key of {{quiz.scaleString}} on the {{quiz.staff}} staff.</h4>
 
 <p>Right? {{right}}</p>
 
 <button {{action "check" }}>Check</button>
 <button {{action "next" }}>Next</button>
 
-<!--
 <h4>Recent Incorrect {{recentWrong.length}}</h4>
 <ul>
 {{#each recentWrong as |rcquiz|}}
-<li>{{rcquiz.scaleString}} {{rcquiz.chordRoman}} </li>
+<li>{{rcquiz.chordRomanHtml}} in {{rcquiz.scaleString}}, {{rcquiz.wrongReason}} </li>
 {{/each}}
 </ul>
 
+<!--
 <h4>Recent Correct {{recentCorrect.length}}</h4>
 <ul>
 {{#each recentCorrect as |rcquiz|}}
-<li>{{rcquiz.scaleString}} {{rcquiz.chordRoman}} </li>
+<li>{{rcquiz.chordRomanHtml}} in {{rcquiz.scaleString}} </li>
 {{/each}}
 </ul>
 -->

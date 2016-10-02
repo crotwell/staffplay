@@ -30,7 +30,9 @@ export default Ember.Service.extend({
     this.get('recentCorrect').push(quiz);
   },
   addToRecentWrong(quiz) {
-    this.get('recentWrong').push(quiz);
+console.log("add to recentWrong "+quiz.wrongReason);
+    //add as object as if wrong then right then reason is overwritten
+    this.get('recentWrong').addObject(quiz );
   },
   createQuiz(inQuizType, instaff) {
     let qmaker = new QM();
@@ -83,7 +85,9 @@ console.log("chord idx="+idx);
     out.set('idx', idx);
     out.set('chordNotes', chord.notes());
     console.log("createQuiz "+out.chord+" "+out.chord.root.name()+" "+out.chord.root.duration.value);
-    out.set('chordRoman', qmaker.createRoman(sc, idx, chord));
+    let roman = qmaker.createRoman(sc, idx, chord);
+    out.set('chordRoman', roman.asText);
+    out.set('chordRomanHtml', roman.asHtml);
 
     return out;
   },
