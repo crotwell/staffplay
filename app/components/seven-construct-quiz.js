@@ -68,6 +68,8 @@ export default Ember.Component.extend({
             notes = this.replaceOrAdd(notes, newNote);
         } else {
             notes = this.remove(notes, note);
+            this.set('hoverLine', this.get('hoverNote'));
+            this.set('hoverNote', null);
         }
         if (staff==='treble') {
             this.set('trebleNotes', notes);
@@ -76,6 +78,8 @@ export default Ember.Component.extend({
         }
       } else {
         notes.pushObject(note);
+        this.set('hoverNote', this.get('hoverLine'));
+        this.set('hoverLine', null);
       }
     },
     check() {

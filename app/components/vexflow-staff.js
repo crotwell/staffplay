@@ -91,7 +91,6 @@ export default Ember.Component.extend({
       aLine.setAttribute('x2', hoverLine.mousex+20);
       aLine.setAttribute('y2', hoverLine.yForLine);
       aLine.setAttribute('stroke', 'green');
-      aLine.setAttribute('stroke-width', 4);
       svg.appendChild(aLine);
     } 
     if (this.get('hoverNote')) {
@@ -101,6 +100,7 @@ console.log("hoverNote");
       var text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
       text.setAttribute('x', hoverNote.mousex-20);
       text.setAttribute('y', hoverNote.yForLine);
+      text.setAttribute('dominant-baseline', 'middle');
       text.setAttribute('stroke', 'green');
       text.appendChild(document.createTextNode("b # bb ## del"));
       svg.appendChild(text);
