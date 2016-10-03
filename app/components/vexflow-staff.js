@@ -25,16 +25,13 @@ export default Ember.Component.extend({
     }
   },
   hoverChanged: Ember.observer('hoverLine', 'hoverNote', function() {
-    console.log("hover observer fire");
     this.redisplay();
   }),
   notesChanged: Ember.observer('trebNotes.[]', 'bassNotes.[]', function() {
-    console.log("observer fire");
     this.redisplay();
   }),
 
   redisplay() {
-    console.log("In vexflow-staff redisplay "+this.get('chord')+" in the "+this.get('scale')+" scale");
     let div = this.$()[0];
     let svgSubElements = div.getElementsByTagName("svg");
     if (svgSubElements.item(0)) {
@@ -90,7 +87,11 @@ export default Ember.Component.extend({
       aLine.setAttribute('y1', hoverLine.yForLine);
       aLine.setAttribute('x2', hoverLine.mousex+20);
       aLine.setAttribute('y2', hoverLine.yForLine);
-      aLine.setAttribute('stroke', 'green');
+      if (hoverLine.staff === 'treble') {
+        aLine.setAttribute('stroke', 'green');
+      } else {
+        aLine.setAttribute('stroke', 'blue');
+      }
       svg.appendChild(aLine);
     } 
     if (this.get('hoverNote')) {
@@ -101,7 +102,11 @@ console.log("hoverNote");
       text.setAttribute('x', hoverNote.mousex-20);
       text.setAttribute('y', hoverNote.yForLine);
       text.setAttribute('dominant-baseline', 'middle');
-      text.setAttribute('stroke', 'green');
+      if (hoverNote.staff === 'treble') {
+        text.setAttribute('stroke', 'green');
+      } else {
+        text.setAttribute('stroke', 'blue');
+      }
       text.appendChild(document.createTextNode("b # bb ## del"));
       svg.appendChild(text);
     }
@@ -157,10 +162,16 @@ console.log("hoverNote");
       }
     },false);
     svg.addEventListener('mousemove', function(evt) {
-console.log("mousemove");
       if (that.get('noteHover')) {
         let bestNote = that.noteForMouseLoc(evt, that, svg);
         that.get('noteHover')(bestNote);
+      }
+    }, false);
+    svg.addEventListener('mouseleave', function(evt) {
+      if (that.get('noteHover')) {
+        Ember.run.later(that, function() {
+          this.get('noteHover')(null);
+        }, 100);
       }
     }, false);
   },

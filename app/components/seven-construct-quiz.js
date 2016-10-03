@@ -20,6 +20,11 @@ export default Ember.Component.extend({
   },
   actions: {
     noteHover(hover) {
+      if ( ! hover) {
+        this.set('hoverNote', null); 
+        this.set('hoverLine', null); 
+        return;
+      }
 
       let notes = [];
       if (hover.staff === 'treble') {
