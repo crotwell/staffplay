@@ -82,35 +82,48 @@ export default Ember.Component.extend({
     if (this.get('hoverLine')) {
       let hoverLine = this.get('hoverLine');
       let svg = div.getElementsByTagName("svg").item(0);
-      var aLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      aLine.setAttribute('x1', hoverLine.mousex-20);
-      aLine.setAttribute('y1', hoverLine.yForLine);
-      aLine.setAttribute('x2', hoverLine.mousex+20);
-      aLine.setAttribute('y2', hoverLine.yForLine);
-      if (hoverLine.staff === 'treble') {
-        aLine.setAttribute('stroke', 'green');
+      if (hoverLine.isLine) {
+        this.svgLine(hoverLine.mousex, hoverLine.yForLine, hoverLine.staff, svg);
       } else {
-        aLine.setAttribute('stroke', 'blue');
+        // space
+        this.svgLine(hoverLine.mousex, Math.floor(hoverLine.yForLine-hoverLine.lineSeparation/2), hoverLine.staff, svg);
+        this.svgLine(hoverLine.mousex, Math.floor(hoverLine.yForLine+hoverLine.lineSeparation/2), hoverLine.staff, svg);
       }
-      svg.appendChild(aLine);
+      this.svgTextWholeNote(hoverLine.mousex, hoverLine.yForLine, "o", hoverLine.staff, svg);
     } 
     if (this.get('hoverNote')) {
 console.log("hoverNote");
       let hoverNote = this.get('hoverNote');
       let svg = div.getElementsByTagName("svg").item(0);
-      var text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-      text.setAttribute('x', hoverNote.mousex-20);
-      text.setAttribute('y', hoverNote.yForLine);
-      text.setAttribute('dominant-baseline', 'middle');
-      if (hoverNote.staff === 'treble') {
-        text.setAttribute('stroke', 'green');
-      } else {
-        text.setAttribute('stroke', 'blue');
-      }
-      text.appendChild(document.createTextNode("b # bb ## del"));
-      svg.appendChild(text);
+      this.svgTextWholeNote(hoverNote.mousex-20, hoverNote.yForLine, "b # bb ## del", hoverNote.staff, svg);
     }
     this.addNoteClickListener();
+  },
+  svgLine(x, y, staff, svg) {
+    var aLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    aLine.setAttribute('x1', x-20);
+    aLine.setAttribute('y1', y);
+    aLine.setAttribute('x2', x+20);
+    aLine.setAttribute('y2', y);
+    if (staff === 'treble') {
+      aLine.setAttribute('stroke', 'green');
+    } else {
+      aLine.setAttribute('stroke', 'red');
+    }
+    svg.appendChild(aLine);
+  },
+  svgTextWholeNote(x, y, text, staff, svg) {
+      var textEl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      textEl.setAttribute('x', x);
+      textEl.setAttribute('y', y);
+      textEl.setAttribute('dominant-baseline', 'middle');
+      if (staff === 'treble') {
+        textEl.setAttribute('stroke', 'green');
+      } else {
+        textEl.setAttribute('stroke', 'blue');
+      }
+      textEl.appendChild(document.createTextNode(text));
+      svg.appendChild(textEl);
   },
 
   addChordToStaff(tchord, staff, forceDuration) {
@@ -167,13 +180,24 @@ console.log("hoverNote");
         that.get('noteHover')(bestNote);
       }
     }, false);
-    svg.addEventListener('mouseleave', function(evt) {
+    svg.addEventListener('mouseleave', function() {
       if (that.get('noteHover')) {
         Ember.run.later(that, function() {
           this.get('noteHover')(null);
         }, 100);
       }
     }, false);
+/*
+    svg.addEventListener('keydown', function(evt) {
+if (evt.keyCode === 8 || evt.keyCode === 46) {
+console.log("keyCode delete: "+evt.keyCode);
+}
+      if (evt.key == "delete") {
+console.log("delete");
+      }
+      return false;
+    }, false);
+*/
   },
   noteForMouseLoc(evt, that, svg) {
     let pt = svg.createSVGPoint();
@@ -184,19 +208,31 @@ console.log("hoverNote");
     let trebleNote = Teoria.note(that.lineToNote('treble', lineForY));
     let bassLineForY = Math.round( 2 * that.bassStave.getLineForY(loc.y))/2;
     let bassNote = Teoria.note(that.lineToNote('bass', bassLineForY));
+    let lineSeparation = that.trebleStave.getSpacingBetweenLines();
+    let isLine = true;
     let out = null;
     if (trebleNote.octave() > 3 || (trebleNote.octave() === 3 && (trebleNote.name() === 'g' || trebleNote.name() === 'a' || trebleNote.name() === 'b'))) {
+      if (lineForY - Math.floor(lineForY) > 0.25) {
+        isLine = false;
+      }
       out = { note:trebleNote, 
               staff:"treble", 
               mousex: loc.x,
               lineNum: lineForY,
-              yForLine: that.trebleStave.getYForLine(lineForY) };
+              yForLine: that.trebleStave.getYForLine(lineForY),
+              isLine: isLine,
+              lineSeparation: lineSeparation };
     } else {
+      if (bassLineForY - Math.floor(bassLineForY) > 0.25) {
+        isLine = false;
+      }
       out = { note:bassNote, 
               staff:"bass" ,
               mousex: loc.x,
               lineNum: bassLineForY,
-              yForLine: that.bassStave.getYForLine(bassLineForY) };
+              yForLine: that.bassStave.getYForLine(bassLineForY),
+              isLine: isLine,
+              lineSeparation: lineSeparation };
     }
     return out;
   },
