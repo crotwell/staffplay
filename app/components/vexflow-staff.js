@@ -90,6 +90,8 @@ export default Ember.Component.extend({
         this.svgLine(hoverLine.mousex, Math.floor(hoverLine.yForLine+hoverLine.lineSeparation/2), hoverLine.staff, svg);
       }
       this.svgTextWholeNote(hoverLine.mousex, hoverLine.yForLine, "o", hoverLine.staff, svg);
+    } else {
+console.log("no hoverLine");
     } 
     if (this.get('hoverNote')) {
 console.log("hoverNote");
@@ -180,13 +182,16 @@ console.log("hoverNote");
         that.get('noteHover')(bestNote);
       }
     }, false);
+/*
     svg.addEventListener('mouseleave', function() {
+console.log("mouseleave");
       if (that.get('noteHover')) {
         Ember.run.later(that, function() {
           this.get('noteHover')(null);
         }, 100);
       }
     }, false);
+*/
 /*
     svg.addEventListener('keydown', function(evt) {
 if (evt.keyCode === 8 || evt.keyCode === 46) {

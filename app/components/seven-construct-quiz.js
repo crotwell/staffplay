@@ -17,6 +17,7 @@ export default Ember.Component.extend({
     this.set('correctAnswerHtml', this.get('quiz').get('chordRomanHtml'));
     this.set('trebleNotes', []);
     this.set('bassNotes', []);
+    this.set('lastHover', null);
   },
   actions: {
     noteHover(hover) {
@@ -25,7 +26,12 @@ export default Ember.Component.extend({
         this.set('hoverLine', null); 
         return;
       }
+      let lastHover = this.get('lastHover');
+      if (lastHover && lastHover.note.name() === hover.note.name() && lastHover.note.octave() === hover.note.octave()) {
+        return; // over same note as last time
+      }
 
+      this.set('lastHover', hover);
       let notes = [];
       if (hover.staff === 'treble') {
         notes = this.get('trebleNotes');
