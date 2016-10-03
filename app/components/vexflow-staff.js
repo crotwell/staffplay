@@ -24,9 +24,12 @@ export default Ember.Component.extend({
        svgSubElements.item(0).parentNode.removeChild(svgSubElements.item(0));
     }
   },
+  hoverChanged: Ember.observer('hoverLine', 'hoverNote', function() {
+    console.log("hover observer fire");
+    this.redisplay();
+  }),
   notesChanged: Ember.observer('trebNotes.[]', 'bassNotes.[]', function() {
     console.log("observer fire");
-
     this.redisplay();
   }),
 
@@ -79,6 +82,22 @@ export default Ember.Component.extend({
         this.addNotesToStaff(this.get('bassNotes'), 'bass', forceDuration, true);
       }
     }
+    if (this.get('hoverLine')) {
+      let hoverLine = this.get('hoverLine');
+console.log("hoverLine "+hoverLine.mousex+" "+hoverLine.yForLine+" line:"+hoverLine.lineNum);
+      let svg = div.getElementsByTagName("svg").item(0);
+      var aLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      aLine.setAttribute('x1', hoverLine.mousex-20);
+      aLine.setAttribute('y1', hoverLine.yForLine);
+      aLine.setAttribute('x2', hoverLine.mousex+20);
+      aLine.setAttribute('y2', hoverLine.yForLine);
+      aLine.setAttribute('stroke', 'green');
+      aLine.setAttribute('stroke-width', 4);
+      svg.appendChild(aLine);
+    }
+    if (this.get('hoverNote')) {
+console.log("hoverNote");
+    }
     this.addNoteClickListener();
   },
 
@@ -124,22 +143,43 @@ export default Ember.Component.extend({
     let div = this.$()[0];
     let svg = div.getElementsByTagName("svg").item(0);
     let that = this;
-    let pt = svg.createSVGPoint();
     svg.addEventListener('mouseup',function(evt){
-      let loc = that.cursorPoint(evt, pt, svg);
-      // Use loc.x and loc.y here
-      let lineForY = that.trebleStave.getLineForY(loc.y);
-      let trebleNote = Teoria.note(that.lineToNote('treble', lineForY));
-      lineForY = that.bassStave.getLineForY(loc.y);
-      let bassNote = Teoria.note(that.lineToNote('bass', lineForY));
       if (that.get('noteClicked')) {
-        if (trebleNote.octave() > 3 || (trebleNote.octave() === 3 && (trebleNote.name() === 'g' || trebleNote.name() === 'a' || trebleNote.name() === 'b'))) {
-          that.get('noteClicked')(trebleNote, "treble");
-        } else {
-          that.get('noteClicked')(bassNote, 'bass');
-        }
+        let bestNote = that.noteForMouseLoc(evt, that, svg);
+        that.get('noteClicked')(bestNote.note, bestNote.staff);
       }
     },false);
+    svg.addEventListener('mousemove', function(evt) {
+console.log("mousemove");
+      if (that.get('noteHover')) {
+        let bestNote = that.noteForMouseLoc(evt, that, svg);
+        that.get('noteHover')(bestNote);
+      }
+    }, false);
+  },
+  noteForMouseLoc(evt, that, svg) {
+    let pt = svg.createSVGPoint();
+    let loc = that.cursorPoint(evt, pt, svg);
+    // Use loc.x and loc.y here
+    let lineForY = Math.round(2*that.trebleStave.getLineForY(loc.y))/2;
+    let trebleNote = Teoria.note(that.lineToNote('treble', lineForY));
+    let bassLineForY = Math.round(that.bassStave.getLineForY(loc.y))/2;
+    let bassNote = Teoria.note(that.lineToNote('bass', bassLineForY));
+    let out = null;
+    if (trebleNote.octave() > 3 || (trebleNote.octave() === 3 && (trebleNote.name() === 'g' || trebleNote.name() === 'a' || trebleNote.name() === 'b'))) {
+      out = { note:trebleNote, 
+              staff:"treble", 
+              mousex: loc.x,
+              lineNum: lineForY,
+              yForLine: that.trebleStave.getYForLine(lineForY) };
+    } else {
+      out = { note:bassNote, 
+              staff:"bass" ,
+              mousex: loc.x,
+              lineNum: bassLineForY,
+              yForLine: that.bassStave.getYForLine(bassLineForY) };
+    }
+    return out;
   },
   lineToNote(stave, lineNum) {
     if (stave === 'treble') {

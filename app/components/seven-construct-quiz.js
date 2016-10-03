@@ -19,6 +19,23 @@ export default Ember.Component.extend({
     this.set('bassNotes', []);
   },
   actions: {
+    noteHover(hover, staff) {
+
+      let notes = [];
+      if (staff === 'treble') {
+        notes = this.get('trebleNotes');
+      } else {
+        notes = this.get('bassNotes');
+      }
+      let oldNote = this.containedNote(notes, hover.note);
+      if (oldNote) {
+        this.set('hoverNote', hover); 
+console.log("hoverNote set");
+      } else {
+        this.set('hoverLine', hover);
+console.log("hoverLine set");
+      }
+    },
     noteClicked(note, staff) {
       let notes = [];
       if (staff === 'treble') {
