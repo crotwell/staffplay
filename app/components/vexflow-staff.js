@@ -84,7 +84,6 @@ export default Ember.Component.extend({
     }
     if (this.get('hoverLine')) {
       let hoverLine = this.get('hoverLine');
-console.log("hoverLine "+hoverLine.mousex+" "+hoverLine.yForLine+" line:"+hoverLine.lineNum);
       let svg = div.getElementsByTagName("svg").item(0);
       var aLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
       aLine.setAttribute('x1', hoverLine.mousex-20);
@@ -94,9 +93,17 @@ console.log("hoverLine "+hoverLine.mousex+" "+hoverLine.yForLine+" line:"+hoverL
       aLine.setAttribute('stroke', 'green');
       aLine.setAttribute('stroke-width', 4);
       svg.appendChild(aLine);
-    }
+    } 
     if (this.get('hoverNote')) {
 console.log("hoverNote");
+      let hoverNote = this.get('hoverNote');
+      let svg = div.getElementsByTagName("svg").item(0);
+      var text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      text.setAttribute('x', hoverNote.mousex-20);
+      text.setAttribute('y', hoverNote.yForLine);
+      text.setAttribute('stroke', 'green');
+      text.appendChild(document.createTextNode("b # bb ## del"));
+      svg.appendChild(text);
     }
     this.addNoteClickListener();
   },
@@ -161,9 +168,10 @@ console.log("mousemove");
     let pt = svg.createSVGPoint();
     let loc = that.cursorPoint(evt, pt, svg);
     // Use loc.x and loc.y here
-    let lineForY = Math.round(2*that.trebleStave.getLineForY(loc.y))/2;
+    //lineForY will be integer for line and integer+1/2 for space
+    let lineForY = Math.round( 2 * that.trebleStave.getLineForY(loc.y))/2;
     let trebleNote = Teoria.note(that.lineToNote('treble', lineForY));
-    let bassLineForY = Math.round(that.bassStave.getLineForY(loc.y))/2;
+    let bassLineForY = Math.round( 2 * that.bassStave.getLineForY(loc.y))/2;
     let bassNote = Teoria.note(that.lineToNote('bass', bassLineForY));
     let out = null;
     if (trebleNote.octave() > 3 || (trebleNote.octave() === 3 && (trebleNote.name() === 'g' || trebleNote.name() === 'a' || trebleNote.name() === 'b'))) {
