@@ -39,7 +39,7 @@ export default Ember.Object.extend({
         }
       });
       if ( ! foundNote && ! that.get('reason')) {
-        that.set('reason', 'Missing note, need '+item.name+item.accidental);
+        that.set('reason', 'Missing note, need '+item.name()+item.accidental());
       }
       allOK = allOK && foundNote;
     });
