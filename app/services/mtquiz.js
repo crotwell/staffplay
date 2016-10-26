@@ -36,22 +36,26 @@ console.log("add to recentWrong "+quiz.wrongReason);
   },
   createQuiz(inQuizType, instaff) {
     let qmaker = new QM();
+    let sc = qmaker.randomScale(1, instaff);
+ console.log("got random scale: "+sc.simple());
+    let idx = 1+Math.floor(Math.random()* (sc.notes().length));
+    return this.createQuizForScale(inQuizType, instaff, sc, idx);
+  },
+  createQuizForScale(inQuizType, instaff, sc, idx) {
+    let qmaker = new QM();
     console.log("createQuiz "+inQuizType+" "+instaff);
     let out = Ember.Object.extend({
       quizType: inQuizType,
       staff: instaff
     }).create();
 
-    let sc = qmaker.randomScale(1, instaff);
     
- console.log("got random scale: "+sc.simple());
     out.set('scale', sc);
     out.set('scaleSimple', sc.simple());
     out.set('scaleString', sc.tonic.name().toUpperCase()+sc.tonic.accidental()+" "+sc.name);
     out.set('root', sc.tonic);
 console.log("scale root "+out.root.accidental()+out.root.name()+"  "+out.root.duration.value);
 console.log("scale length="+out.scale.notes().length);
-    let idx = 1+Math.floor(Math.random()* (out.scale.notes().length));
     var chords = [idx,];
 console.log("chord idx="+idx);
 
