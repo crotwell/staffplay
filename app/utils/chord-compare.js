@@ -1,8 +1,8 @@
 import Ember from 'ember';
 
-export default Ember.Object.extend({
 /** checks all notes in the chord are in notes and all notes in notes are in chord. 
  Only checks note name and accidental, not octave. Also checks size being equal.*/
+let Comparer = Ember.Object.extend({
   init(chord, notes) {
     this.set('chord', chord);
     this.set('notes', notes);
@@ -61,4 +61,8 @@ export default Ember.Object.extend({
       return true;
     }
   },
-});
+  });
+
+export default function chordCompare(chord, notes) {
+  return new Comparer(chord, notes);
+}

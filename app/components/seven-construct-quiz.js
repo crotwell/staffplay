@@ -1,7 +1,7 @@
 import Ember from 'ember';
 
 import Teoria from 'npm:teoria';
-import ChordCompare from '../utils/chord-compare';
+import chordCompare from '../utils/chord-compare';
 import QM from '../utils/quiz-maker';
 
 export default Ember.Component.extend({
@@ -101,7 +101,7 @@ export default Ember.Component.extend({
       } else {
         userAnsNotes = this.get('bassNotes');
       }
-      let chordComp = new ChordCompare(ansChord, userAnsNotes);
+      let chordComp = chordCompare(ansChord, userAnsNotes);
       let isCorrect = chordComp.areSame();
       
       if ( ! isCorrect) {

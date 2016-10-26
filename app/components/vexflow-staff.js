@@ -1,7 +1,7 @@
 import Ember from 'ember';
 import Teoria from 'npm:teoria';
 import Vex from 'npm:vexflow';
-import VFConvert from '../utils/vexflow-convert';
+import vexflowConvert from '../utils/vexflow-convert';
 
 export default Ember.Component.extend({
   init() {
@@ -129,14 +129,14 @@ console.log("hoverNote");
   },
 
   addChordToStaff(tchord, staff, forceDuration) {
-    let vfConvert = VFConvert.create();
+    let vfConvert = vexflowConvert();
     let notes = [vfConvert.toVexChord(tchord, forceDuration, staff)];
     this.addVexNotesToStaff(notes, staff);
   },
   
   addNotesToStaff(tNotes, staff, forceDuration, asChord) {
     if (tNotes.length > 0) {
-      let vfConvert = VFConvert.create();
+      let vfConvert = vexflowConvert();
       let notes = [];
       if (asChord) {
         notes.push(vfConvert.toVexChordFromNotes(tNotes, forceDuration, staff));

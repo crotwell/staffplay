@@ -1,12 +1,8 @@
-import Ember from 'ember';
 import Vex from 'npm:vexflow';
 //import Teoria from 'npm:teoria';
 
-export default Ember.Object.extend({
 
-  init() {
-  },
-
+let out = {
   toVexChord(chord, forceDuration, clef) {
     return this.toVexChordFromNotes(chord.notes(), forceDuration, clef);
   },
@@ -72,4 +68,8 @@ export default Ember.Object.extend({
     }
   }
 
-});
+};
+
+export default function vexflowConvert() {
+  return out;
+}

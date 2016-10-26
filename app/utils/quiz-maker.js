@@ -6,8 +6,8 @@ const OCTAVE = Teoria.interval('P8');
 const DOWN_OCTAVE = Teoria.interval('P-8');
 
 
-export default Ember.Object.extend({
 
+let out = {
     allNoteNames: ['a', 'b', 'c', 'd', 'e', 'f', 'g'],
     allMajScaleNames: ['c#', 'f#', 'b', 'e', 'a', 'd', 'g', 'c', 'f', 'bb', 'eb', 'ab', 'db', 'gb', 'cb'],
     allMinorScaleNames: [ 'a#', 'd#', 'g#', 'c#', 'f#', 'b', 'e', 'a', 'd', 'g', 'c', 'f', 'bb', 'eb', 'ab'],
@@ -18,9 +18,6 @@ export default Ember.Object.extend({
     diminishedSym: 'd',
     halfDiminishedSym: 'h',
     augmentedSym: '+',
-  init() {
-  },
-
   randomNote(minNote, maxNote) {
     let all = [];
     let n = minNote;
@@ -212,6 +209,8 @@ export default Ember.Object.extend({
         throw "arabicToRoman must be 1-7";
     }
   }
+};
 
-
-});
+export default function quizMaker() {
+  return out;
+}
