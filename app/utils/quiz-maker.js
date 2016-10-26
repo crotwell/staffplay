@@ -41,7 +41,7 @@ let out = {
       quality = 'major';
     }
     let rand = Math.random();
-    let idx = Math.floor(rand * this.get('allMajScaleNames').length);
+    let idx = Math.floor(rand * out.allMajScaleNames.length);
     let tonicOctave = '4';
     if (clef === 'treble') {
       tonicOctave = '4';
@@ -52,9 +52,9 @@ let out = {
     }
     let root = null;
     if (quality === 'major') {
-      root = Teoria.note( this.get('allMajScaleNames')[idx]+tonicOctave, {value: duration});
+      root = Teoria.note( out.allMajScaleNames[idx]+tonicOctave, {value: duration});
     } else {
-      root = Teoria.note( this.get('allMinorScaleNames')[idx]+tonicOctave, {value: duration});
+      root = Teoria.note( out.allMinorScaleNames[idx]+tonicOctave, {value: duration});
     }
     let scale = Teoria.scale(root, quality);
     return scale;
