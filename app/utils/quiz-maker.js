@@ -156,7 +156,7 @@ let out = {
         // no symbol
       } else if (chord.inversion === 1) {
         out.asText += '6';
-        out.asHtml += '<span style="display:inline-block;margin-bottom:-0.3em;vertical-align:-0.4em;line-height:1.2em;font-size:80%;text-align:left">6<br /> </span>';
+        out.asHtml += '<span><sup>6</sup></span>';
       } else if (chord.inversion === 2) {
         out.asText += '64';
         out.asHtml += '<span style="display:inline-block;margin-bottom:-0.3em;vertical-align:-0.4em;line-height:1.2em;font-size:80%;text-align:left">6<br />4</span>';
