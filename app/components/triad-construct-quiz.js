@@ -1,4 +1,3 @@
-import Ember from 'ember';
 import AbstractConstructionQuiz from './abstract-construction-quiz';
 
 export default AbstractConstructionQuiz.extend({
