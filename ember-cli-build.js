@@ -9,6 +9,9 @@ module.exports = function(defaults) {
       options: {
         exclude: ["**/acoustic_grand_piano-mp3.js"]
       }
+    },
+    fingerprint: {
+      exclude: ['acoustic_grand_piano-mp3.js']
     }
   });
 
